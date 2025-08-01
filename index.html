@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineMax - Movie Ticket Booking</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            margin: 0 20px;
+            color: rgba(255,255,255,0.6);
+            font-weight: 500;
+        }
+
+        .step.active {
+            color: white;
+        }
+
+        .step-number {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+
+        .step.active .step-number {
+            background: #4CAF50;
+        }
+
+        .section {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .movies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .movie-card {
+            border: 2px solid transparent;
+            border-radius: 15px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .movie-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+
+        .movie-card.selected {
+            border-color: #4CAF50;
+            transform: translateY(-5px);
+        }
+
+        .movie-poster {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .movie-info {
+            padding: 20px;
+        }
+
+        .movie-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .movie-details {
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .movie-rating {
+            display: flex;
+            align-items: center;
+            color: #ff9500;
+        }
+
+        .showtimes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .showtime-card {
+            background: #f8f9fa;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .showtime-card:hover {
+            background: #e9ecef;
+        }
+
+        .showtime-card.selected {
+            border-color: #4CAF50;
+            background: #e8f5e8;
+        }
+
+        .showtime {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .price {
+            color: #4CAF50;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .seats-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .screen {
+            background: linear-gradient(to bottom, #333, #666);
+            color: white;
+            text-align: center;
+            padding: 10px;
+            margin-bottom: 30px;
+            border-radius: 50px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .seats-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .seat {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .seat.available {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .seat.available:hover {
+            background: #4CAF50;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .seat.selected {
+            background: #4CAF50;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .seat.occupied {
+            background: #f44336;
+            color: white;
+            cursor: not-allowed;
+        }
+
+        .seat-legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-seat {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .booking-summary {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .total {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #4CAF50;
+            border-top: 2px solid #ddd;
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .back-btn {
+            background: #6c757d;
+            padding: 10px 20px;
+            font-size: 1em;
+            margin-right: 15px;
+        }
+
+        .payment-form {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        .confirmation {
+            text-align: center;
+            padding: 50px 20px;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: #4CAF50;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            color: white;
+            font-size: 2em;
+        }
+
+        .confirmation h2 {
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .seats-grid {
+                grid-template-columns: repeat(8, 1fr);
+            }
+            
+            .seat {
+                width: 30px;
+                height: 30px;
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 CineMax</h1>
+            <p>Book Your Movie Experience</p>
+        </div>
+
+        <div class="step-indicator">
+            <div class="step active" id="step-1">
+                <div class="step-number">1</div>
+                <span>Select Movie</span>
+            </div>
+            <div class="step" id="step-2">
+                <div class="step-number">2</div>
+                <span>Choose Showtime</span>
+            </div>
+            <div class="step" id="step-3">
+                <div class="step-number">3</div>
+                <span>Select Seats</span>
+            </div>
+            <div class="step" id="step-4">
+                <div class="step-number">4</div>
+                <span>Payment</span>
+            </div>
+        </div>
+
+        <!-- Movies Section -->
+        <div class="section active" id="movies-section">
+            <h2 style="text-align: center; margin-bottom: 30px; color: #333;">Now Showing</h2>
+            <div class="movies-grid" id="movies-grid">
+                <!-- Movies will be populated by JavaScript -->
+                <div class="movie-card" onclick="selectMovie({id: 1, title: 'Dune: Part Two', genre: 'Sci-Fi, Adventure', duration: '166 min', rating: 8.8, description: 'Paul Atreides unites with Chani and the Fremen while seeking revenge.'})">
+                    <div class="movie-poster">Dune: Part Two</div>
+                    <div class="movie-info">
+                        <div class="movie-title">Dune: Part Two</div>
+                        <div class="movie-details">Sci-Fi, Adventure • 166 min</div>
+                        <div class="movie-rating">★ 8.8/10</div>
+                        <p style="margin-top: 10px; color: #666; font-size: 0.9em;">Paul Atreides unites with Chani and the Fremen while seeking revenge.</p>
+                    </div>
+                </div>
+                <div class="movie-card" onclick="selectMovie({id: 2, title: 'Oppenheimer', genre: 'Biography, Drama', duration: '180 min', rating: 8.6, description: 'The story of J. Robert Oppenheimer and the atomic bomb.'})">
+                    <div class="movie-poster">Oppenheimer</div>
+                    <div class="movie-info">
+                        <div class="movie-title">Oppenheimer</div>
+                        <div class="movie-details">Biography, Drama • 180 min</div>
+                        <div class="movie-rating">★ 8.6/10</div>
+                        <p style="margin-top: 10px; color: #666; font-size: 0.9em;">The story of J. Robert Oppenheimer and the atomic bomb.</p>
+                    </div>
+                </div>
+                <div class="movie-card" onclick="selectMovie({id: 5, title: 'Avatar: The Way of Water', genre: 'Sci-Fi, Adventure', duration: '192 min', rating: 7.6, description: 'Jake Sully and his family face new threats on Pandora.'})">
+                    <div class="movie-poster">Avatar: The Way of Water</div>
+                    <div class="movie-info">
+                        <div class="movie-title">Avatar: The Way of Water</div>
+                        <div class="movie-details">Sci-Fi, Adventure • 192 min</div>
+                        <div class="movie-rating">★ 7.6/10</div>
+                        <p style="margin-top: 10px; color: #666; font-size: 0.9em;">Jake Sully and his family face new threats on Pandora.</p>
+                    </div>
+                </div>
+                <div class="movie-card" onclick="selectMovie({id: 13, title: 'Baahubali 2: The Conclusion', genre: 'Action, Drama', duration: '167 min', rating: 8.2, description: 'When Shiva learns about his heritage, he begins to look for answers to questions about his past.'})">
+                    <div class="movie-poster">Baahubali 2: The Conclusion</div>
+                    <div class="movie-info">
+                        <div class="movie-title">Baahubali 2: The Conclusion</div>
+                        <div class="movie-details">Action, Drama • 167 min</div>
+                        <div class="movie-rating">★ 8.2/10</div>
+                        <p style="margin-top: 10px; color: #666; font-size: 0.9em;">When Shiva learns about his heritage, he begins to look for answers to questions about his past.</p>
+                    </div>
+                </div>
+                <div class="movie-card" onclick="selectMovie({id: 14, title: 'Arya 2', genre: 'Action, Comedy, Romance', duration: '155 min', rating: 7.8, description: 'Arya, an eccentric young man, falls in love with Geetha, but she doesn\'t reciprocate his feelings.'})">
+                    <div class="movie-poster">Arya 2</div>
+                    <div class="movie-info">
+                        <div class="movie-title">Arya 2</div>
+                        <div class="movie-details">Action, Comedy, Romance • 155 min</div>
+                        <div class="movie-rating">★ 7.8/10</div>
+                        <p style="margin-top: 10px; color: #666; font-size: 0.9em;">Arya, an eccentric young man, falls in love with Geetha, but she doesn't reciprocate his feelings.</p>
+                    </div>
+                </div>
+                <div class="movie-card" onclick="selectMovie({id: 6, title: 'Top Gun: Maverick', genre: 'Action, Drama', duration: '130 min', rating: 8.3, description: 'Pete \'Maverick\' Mitchell confronts his past in this thrilling sequel.'})">
+                    <div class="movie-poster">Top Gun: Maverick</div>
+                    <div class="movie-info">
+                        <div class="movie-title">Top Gun: Maverick</div>
+                        <div class="movie-details">Action, Drama • 130 min</div>
+                        <div class="movie-rating">★ 8.3/10</div>
+                        <p style="margin-top: 10px; color: #666; font-size: 0.9em;">Pete 'Maverick' Mitchell confronts his past in this thrilling sequel.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Showtimes Section -->
+        <div class="section" id="showtimes-section">
+            <h2 style="text-align: center; margin-bottom: 30px; color: #333;">Select Showtime</h2>
+            <div id="selected-movie-info"></div>
+            <div class="showtimes-grid" id="showtimes-grid">
+                <!-- Showtimes will be populated by JavaScript -->
+            </div>
+            <button class="btn back-btn" onclick="goToStep('movies')">← Back</button>
+            <button class="btn" id="continue-to-seats" onclick="goToStep('seats')" disabled>Continue to Seats</button>
+        </div>
+
+        <!-- Seats Section -->
+        <div class="section" id="seats-section">
+            <h2 style="text-align: center; margin-bottom: 30px; color: #333;">Select Your Seats</h2>
+            
+            <div class="seats-container">
+                <div class="screen">SCREEN</div>
+                
+                <div class="seat-legend">
+                    <div class="legend-item">
+                        <div class="legend-seat" style="background: #e0e0e0;"></div>
+                        <span>Available</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-seat" style="background: #4CAF50;"></div>
+                        <span>Selected</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-seat" style="background: #f44336;"></div>
+                        <span>Occupied</span>
+                    </div>
+                </div>
+
+                <div class="seats-grid" id="seats-grid">
+                    <!-- Seats will be populated by JavaScript -->
+                </div>
+
+                <div class="booking-summary" id="booking-summary">
+                    <h3 style="margin-bottom: 20px; color: #333;">Booking Summary</h3>
+                    <div class="summary-row">
+                        <span>Movie:</span>
+                        <span id="summary-movie">-</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Showtime:</span>
+                        <span id="summary-showtime">-</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Seats:</span>
+                        <span id="summary-seats">None selected</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Price per ticket:</span>
+                        <span id="summary-price">₹0</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Total Amount:</span>
+                        <span id="summary-total">₹0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center;">
+                <button class="btn back-btn" onclick="goToStep('showtimes')">← Back</button>
+                <button class="btn" id="continue-to-payment" onclick="goToStep('payment')" disabled>Continue to Payment</button>
+            </div>
+        </div>
+
+        <!-- Payment Section -->
+        <div class="section" id="payment-section">
+            <h2 style="text-align: center; margin-bottom: 30px; color: #333;">Payment Details</h2>
+            
+            <div class="payment-form">
+                <div class="booking-summary" style="margin-bottom: 30px;">
+                    <h3 style="margin-bottom: 15px; color: #333;">Final Summary</h3>
+                    <div class="summary-row">
+                        <span>Movie:</span>
+                        <span id="final-movie">-</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Showtime:</span>
+                        <span id="final-showtime">-</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Seats:</span>
+                        <span id="final-seats">-</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Total Amount:</span>
+                        <span id="final-total">₹0</span>
+                    </div>
+                </div>
+
+                <form id="payment-form">
+                    <div class="form-group">
+                        <label for="cardholder-name">Cardholder Name</label>
+                        <input type="text" id="cardholder-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="card-number">Card Number</label>
+                        <input type="text" id="card-number" placeholder="1234 5678 9012 3456" maxlength="19" required>
+                    </div>
+                    <div style="display: flex; gap: 15px;">
+                        <div class="form-group" style="flex: 1;">
+                            <label for="expiry">Expiry Date</label>
+                            <input type="text" id="expiry" placeholder="MM/YY" maxlength="5" required>
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label for="cvv">CVV</label>
+                            <input type="text" id="cvv" placeholder="123" maxlength="3" required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div style="text-align: center;">
+                <button class="btn back-btn" onclick="goToStep('seats')">← Back</button>
+                <button class="btn" onclick="processPayment()">Complete Booking</button>
+            </div>
+        </div>
+
+        <!-- Confirmation Section -->
+        <div class="section" id="confirmation-section">
+            <div class="confirmation">
+                <div class="success-icon">✓</div>
+                <h2>Booking Confirmed!</h2>
+                <p style="margin-bottom: 30px; color: #666;">Your tickets have been booked successfully. You'll receive a confirmation email shortly.</p>
+                
+                <div class="booking-summary" style="max-width: 400px; margin: 0 auto 30px;">
+                    <h3 style="margin-bottom: 15px; color: #333;">Booking Details</h3>
+                    <div class="summary-row">
+                        <span>Booking ID:</span>
+                        <span id="booking-id">-</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Movie:</span>
+                        <span id="confirm-movie">-</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Showtime:</span>
+                        <span id="confirm-showtime">-</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Seats:</span>
+                        <span id="confirm-seats">-</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Total Paid:</span>
+                        <span id="confirm-total">₹0</span>
+                    </div>
+                </div>
+
+                <button class="btn" onclick="startOver()">Book Another Show</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Application state
+        let selectedMovie = null;
+        let selectedShowtime = null;
+        let selectedSeats = [];
+        let currentStep = 'movies';
+
+        // Sample movie data
+        const movies = [
+            {
+                id: 1,
+                title: "Dune: Part Two",
+                genre: "Sci-Fi, Adventure",
+                duration: "166 min",
+                rating: 8.8,
+                description: "Paul Atreides unites with Chani and the Fremen while seeking revenge."
+            },
+            {
+                id: 2,
+                title: "Oppenheimer",
+                genre: "Biography, Drama", 
+                duration: "180 min",
+                rating: 8.6,
+                description: "The story of J. Robert Oppenheimer and the atomic bomb."
+            },
+            {
+                id: 3,
+                title: "Spider-Verse",
+                genre: "Animation, Action",
+                duration: "140 min",
+                rating: 8.9,
+                description: "Miles Morales embarks on an epic multiverse adventure."
+            },
+            {
+                id: 4,
+                title: "The Batman",
+                genre: "Action, Crime",
+                duration: "176 min",
+                rating: 7.8,
+                description: "Batman ventures into Gotham City's underworld."
+            },
+            {
+                id: 5,
+                title: "Avatar: The Way of Water",
+                genre: "Sci-Fi, Adventure",
+                duration: "192 min",
+                rating: 7.6,
+                description: "Jake Sully and his family face new threats on Pandora."
+            },
+            {
+                id: 13,
+                title: "Baahubali 2: The Conclusion",
+                genre: "Action, Drama",
+                duration: "167 min",
+                rating: 8.2,
+                description: "When Shiva learns about his heritage, he begins to look for answers to questions about his past."
+            },
+            {
+                id: 14,
+                title: "Arya 2",
+                genre: "Action, Comedy, Romance",
+                duration: "155 min",
+                rating: 7.8,
+                description: "Arya, an eccentric young man, falls in love with Geetha, but she doesn't reciprocate his feelings."
+            },
+            {
+                id: 6,
+                title: "Top Gun: Maverick",
+                genre: "Action, Drama",
+                duration: "130 min",
+                rating: 8.3,
+                description: "Pete 'Maverick' Mitchell confronts his past in this thrilling sequel."
+            },
+            {
+                id: 7,
+                title: "Black Panther: Wakanda Forever",
+                genre: "Action, Adventure",
+                duration: "161 min",
+                rating: 6.7,
+                description: "The people of Wakanda fight to protect their home from intervening world powers."
+            },
+            {
+                id: 8,
+                title: "John Wick: Chapter 4",
+                genre: "Action, Thriller",
+                duration: "169 min",
+                rating: 7.7,
+                description: "John Wick uncovers a path to defeating The High Table."
+            },
+            {
+                id: 9,
+                title: "Everything Everywhere All at Once",
+                genre: "Action, Adventure, Comedy",
+                duration: "139 min",
+                rating: 7.8,
+                description: "A Chinese-American woman gets swept up in an insane adventure."
+            },
+            {
+                id: 10,
+                title: "The Menu",
+                genre: "Comedy, Horror, Thriller",
+                duration: "107 min",
+                rating: 7.2,
+                description: "A couple travels to a coastal island to eat at an exclusive restaurant."
+            },
+            {
+                id: 11,
+                title: "Babylon",
+                genre: "Comedy, Drama",
+                duration: "189 min",
+                rating: 7.1,
+                description: "A tale of outsized ambition and outrageous excess in 1920s Hollywood."
+            },
+            {
+                id: 12,
+                title: "Glass Onion: A Knives Out Mystery",
+                genre: "Comedy, Crime, Drama",
+                duration: "139 min",
+                rating: 7.2,
+                description: "Detective Benoit Blanc travels to Greece to peel back the layers of a mystery."
+            }
+        ];
+
+        // Sample showtime data
+        const showtimes = [
+            { id: 1, time: "10:30 AM", price: 250, available: 120 },
+            { id: 2, time: "1:45 PM", price: 300, available: 85 },
+            { id: 3, time: "4:30 PM", price: 350, available: 95 },
+            { id: 4, time: "7:15 PM", price: 400, available: 45 },
+            { id: 5, time: "10:00 PM", price: 300, available: 110 }
+        ];
+
+        // Initialize the application
+        function init() {
+            console.log('Initializing app...');
+            renderMovies();
+            renderShowtimes();
+            generateSeats();
+        }
+
+        // Render movies
+        function renderMovies() {
+            console.log('Rendering movies...');
+            const moviesGrid = document.getElementById('movies-grid');
+            
+            if (!moviesGrid) {
+                console.error('Movies grid element not found!');
+                return;
+            }
+            
+            moviesGrid.innerHTML = '';
+            console.log('Found', movies.length, 'movies to render');
+
+            movies.forEach((movie, index) => {
+                console.log('Rendering movie', index + 1, ':', movie.title);
+                const movieCard = document.createElement('div');
+                movieCard.className = 'movie-card';
+                movieCard.onclick = () => selectMovie(movie);
+                
+                movieCard.innerHTML = `
+                    <div class="movie-poster">${movie.title}</div>
+                    <div class="movie-info">
+                        <div class="movie-title">${movie.title}</div>
+                        <div class="movie-details">${movie.genre} • ${movie.duration}</div>
+                        <div class="movie-rating">★ ${movie.rating}/10</div>
+                        <p style="margin-top: 10px; color: #666; font-size: 0.9em;">${movie.description}</p>
+                    </div>
+                `;
+                
+                moviesGrid.appendChild(movieCard);
+            });
+            
+            console.log('Movies rendered successfully');
+        }
+
+        // Select a movie
+        function selectMovie(movie) {
+            selectedMovie = movie;
+            
+            // Update UI
+            document.querySelectorAll('.movie-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+            
+            // Show selected movie info in showtimes section
+            document.getElementById('selected-movie-info').innerHTML = `
+                <div style="background: #f8f9fa; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
+                    <h3>${movie.title}</h3>
+                    <p>${movie.genre} • ${movie.duration} • ★ ${movie.rating}/10</p>
+                </div>
+            `;
+            
+            setTimeout(() => goToStep('showtimes'), 500);
+        }
+
+        // Render showtimes
+        function renderShowtimes() {
+            const showtimesGrid = document.getElementById('showtimes-grid');
+            showtimesGrid.innerHTML = '';
+
+            showtimes.forEach(showtime => {
+                const showtimeCard = document.createElement('div');
+                showtimeCard.className = 'showtime-card';
+                showtimeCard.onclick = () => selectShowtime(showtime);
+                
+                showtimeCard.innerHTML = `
+                    <div class="showtime">${showtime.time}</div>
+                    <div class="price">₹${showtime.price}</div>
+                    <div style="color: #666; font-size: 0.9em; margin-top: 5px;">${showtime.available} seats available</div>
+                `;
+                
+                showtimesGrid.appendChild(showtimeCard);
+            });
+        }
+
+        // Select a showtime
+        function selectShowtime(showtime) {
+            selectedShowtime = showtime;
+            
+            // Update UI
+            document.querySelectorAll('.showtime-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+            
+            document.getElementById('continue-to-seats').disabled = false;
+        }
+
+        // Generate seats
+        function generateSeats() {
+            const seatsGrid = document.getElementById('seats-grid');
+            seatsGrid.innerHTML = '';
+            
+            const rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+            
+            rows.forEach(row => {
+                for (let i = 1; i <= 12; i++) {
+                    const seat = document.createElement('button');
+                    const seatId = `${row}${i}`;
+                    seat.className = 'seat available';
+                    seat.textContent = seatId;
+                    seat.id = seatId;
+                    
+                    // Randomly make some seats occupied
+                    if (Math.random() < 0.25) {
+                        seat.className = 'seat occupied';
+                        seat.disabled = true;
+                    } else {
+                        seat.onclick = () => toggleSeat(seatId);
+                    }
+                    
+                    seatsGrid.appendChild(seat);
+                }
+            });
+        }
+
+        // Toggle seat selection
+        function toggleSeat(seatId) {
+            const seat = document.getElementById(seatId);
+            
+            if (selectedSeats.includes(seatId)) {
+                // Deselect seat
+                selectedSeats = selectedSeats.filter(id => id !== seatId);
+                seat.classList.remove('selected');
+                seat.classList.add('available');
+            } else {
+                // Select seat (max 8 seats)
+                if (selectedSeats.length < 8) {
+                    selectedSeats.push(seatId);
+                    seat.classList.remove('available');
+                    seat.classList.add('selected');
+                } else {
+                    alert('You can select maximum 8 seats at a time.');
+                }
+            }
+            
+            updateBookingSummary();
+        }
+
+        // Update booking summary
+        function updateBookingSummary() {
+            const movieTitle = selectedMovie ? selectedMovie.title : '-';
+            const showtime = selectedShowtime ? selectedShowtime.time : '-';
+            const price = selectedShowtime ? selectedShowtime.price : 0;
+            const total = selectedSeats.length * price;
+            
+            document.getElementById('summary-movie').textContent = movieTitle;
+            document.getElementById('summary-showtime').textContent = showtime;
+            document.getElementById('summary-seats').textContent = selectedSeats.length > 0 ? selectedSeats.join(', ') : 'None selected';
+            document.getElementById('summary-price').textContent = `₹${price}`;
+            document.getElementById('summary-total').textContent = `₹${total}`;
+            
+            // Enable/disable continue button
+            document.getElementById('continue-to-payment').disabled = selectedSeats.length === 0;
+        }
+
+        // Navigate between steps
+        function goToStep(step) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active class from all steps
+            document.querySelectorAll('.step').forEach(stepEl => {
+                stepEl.classList.remove('active');
+            });
+            
+            // Show target section and activate step
+            document.getElementById(`${step}-section`).classList.add('active');
+            
+            const stepNumber = {
+                'movies': 1,
+                'showtimes': 2, 
+                'seats': 3,
+                'payment': 4
+            };
+            
+            document.getElementById(`step-${stepNumber[step]}`).classList.add('active');
+            currentStep = step;
+            
+            // Update summaries for payment section
+            if (step === 'payment') {
+                const total = selectedSeats.length * (selectedShowtime ? selectedShowtime.price : 0);
+                document.getElementById('final-movie').textContent = selectedMovie.title;
+                document.getElementById('final-showtime').textContent = selectedShowtime.time;
+                document.getElementById('final-seats').textContent = selectedSeats.join(', ');
+                document.getElementById('final-total').textContent = `₹${total}`;
+            }
+        }
+
+        // Process payment
+        function processPayment() {
+            const form = document.getElementById('payment-form');
+            
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            
+            // Simulate payment processing
+            const loadingBtn = event.target;
+            loadingBtn.textContent = 'Processing...';
+            loadingBtn.disabled = true;
+            
+            setTimeout(() => {
+                const bookingId = 'BK' + Date.now().toString().slice(-8);
+                const total = selectedSeats.length * selectedShowtime.price;
+                
+                document.getElementById('booking-id').textContent = bookingId;
+                document.getElementById('confirm-movie').textContent = selectedMovie.title;
+                document.getElementById('confirm-showtime').textContent = selectedShowtime.time;
+                document.getElementById('confirm-seats').textContent = selectedSeats.join(', ');
+                document.getElementById('confirm-total').textContent = `₹${total}`;
+                
+                goToStep('confirmation');
+                
+                loadingBtn.textContent = 'Complete Booking';
+                loadingBtn.disabled = false;
+            }, 2000);
+        }
+
+        // Start over
+        function startOver() {
+            selectedMovie = null;
+            selectedShowtime = null;
+            selectedSeats = [];
+            
+            // Reset form
+            document.getElementById('payment-form').reset();
+            
+            // Reset seat selection
+            document.querySelectorAll('.seat.selected').forEach(seat => {
+                seat.classList.remove('selected');
+                seat.classList.add('available');
+            });
+            
+            // Reset movie selection
+            document.querySelectorAll('.movie-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Reset showtime selection
+            document.querySelectorAll('.showtime-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Disable buttons
+            document.getElementById('continue-to-seats').disabled = true;
+            document.getElementById('continue-to-payment').disabled = true;
+            
+            goToStep('movies');
+        }
+
+        // Format card number input
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing...');
+            
+            const cardNumberInput = document.getElementById('card-number');
+            const expiryInput = document.getElementById('expiry');
+            
+            if (cardNumberInput) {
+                cardNumberInput.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+                    let formattedInputValue = value.match(/.{1,4}/g)?.join(' ') || value;
+                    if (formattedInputValue.length > 19) {
+                        formattedInputValue = formattedInputValue.substr(0, 19);
+                    }
+                    e.target.value = formattedInputValue;
+                });
+            }
+            
+            if (expiryInput) {
+                expiryInput.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/\D/g, '');
+                    if (value.length >= 2) {
+                        value = value.substring(0, 2) + '/' + value.substring(2, 4);
+                    }
+                    e.target.value = value;
+                });
+            }
+            
+            // Initialize the application when DOM is loaded
+            init();
+        });
+
+        // Also initialize immediately in case DOM is already loaded
+        if (document.readyState === 'loading') {
+            // DOM is still loading
+        } else {
+            // DOM is already loaded
+            init();
+        }
