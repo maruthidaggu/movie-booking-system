@@ -108,7 +108,7 @@
 
         .movie-poster {
             width: 100%;
-            height: 200px;
+            height: 300px;
             background: linear-gradient(45deg, #667eea, #764ba2);
             display: flex;
             align-items: center;
@@ -116,6 +116,15 @@
             color: white;
             font-size: 1.2em;
             font-weight: bold;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .movie-poster img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
         }
 
         .movie-info {
@@ -409,60 +418,6 @@
             <h2 style="text-align: center; margin-bottom: 30px; color: #333;">Now Showing</h2>
             <div class="movies-grid" id="movies-grid">
                 <!-- Movies will be populated by JavaScript -->
-                <div class="movie-card" onclick="selectMovie({id: 1, title: 'Dune: Part Two', genre: 'Sci-Fi, Adventure', duration: '166 min', rating: 8.8, description: 'Paul Atreides unites with Chani and the Fremen while seeking revenge.'})">
-                    <div class="movie-poster">Dune: Part Two</div>
-                    <div class="movie-info">
-                        <div class="movie-title">Dune: Part Two</div>
-                        <div class="movie-details">Sci-Fi, Adventure • 166 min</div>
-                        <div class="movie-rating">★ 8.8/10</div>
-                        <p style="margin-top: 10px; color: #666; font-size: 0.9em;">Paul Atreides unites with Chani and the Fremen while seeking revenge.</p>
-                    </div>
-                </div>
-                <div class="movie-card" onclick="selectMovie({id: 2, title: 'Oppenheimer', genre: 'Biography, Drama', duration: '180 min', rating: 8.6, description: 'The story of J. Robert Oppenheimer and the atomic bomb.'})">
-                    <div class="movie-poster">Oppenheimer</div>
-                    <div class="movie-info">
-                        <div class="movie-title">Oppenheimer</div>
-                        <div class="movie-details">Biography, Drama • 180 min</div>
-                        <div class="movie-rating">★ 8.6/10</div>
-                        <p style="margin-top: 10px; color: #666; font-size: 0.9em;">The story of J. Robert Oppenheimer and the atomic bomb.</p>
-                    </div>
-                </div>
-                <div class="movie-card" onclick="selectMovie({id: 5, title: 'Avatar: The Way of Water', genre: 'Sci-Fi, Adventure', duration: '192 min', rating: 7.6, description: 'Jake Sully and his family face new threats on Pandora.'})">
-                    <div class="movie-poster">Avatar: The Way of Water</div>
-                    <div class="movie-info">
-                        <div class="movie-title">Avatar: The Way of Water</div>
-                        <div class="movie-details">Sci-Fi, Adventure • 192 min</div>
-                        <div class="movie-rating">★ 7.6/10</div>
-                        <p style="margin-top: 10px; color: #666; font-size: 0.9em;">Jake Sully and his family face new threats on Pandora.</p>
-                    </div>
-                </div>
-                <div class="movie-card" onclick="selectMovie({id: 13, title: 'Baahubali 2: The Conclusion', genre: 'Action, Drama', duration: '167 min', rating: 8.2, description: 'When Shiva learns about his heritage, he begins to look for answers to questions about his past.'})">
-                    <div class="movie-poster">Baahubali 2: The Conclusion</div>
-                    <div class="movie-info">
-                        <div class="movie-title">Baahubali 2: The Conclusion</div>
-                        <div class="movie-details">Action, Drama • 167 min</div>
-                        <div class="movie-rating">★ 8.2/10</div>
-                        <p style="margin-top: 10px; color: #666; font-size: 0.9em;">When Shiva learns about his heritage, he begins to look for answers to questions about his past.</p>
-                    </div>
-                </div>
-                <div class="movie-card" onclick="selectMovie({id: 14, title: 'Arya 2', genre: 'Action, Comedy, Romance', duration: '155 min', rating: 7.8, description: 'Arya, an eccentric young man, falls in love with Geetha, but she doesn\'t reciprocate his feelings.'})">
-                    <div class="movie-poster">Arya 2</div>
-                    <div class="movie-info">
-                        <div class="movie-title">Arya 2</div>
-                        <div class="movie-details">Action, Comedy, Romance • 155 min</div>
-                        <div class="movie-rating">★ 7.8/10</div>
-                        <p style="margin-top: 10px; color: #666; font-size: 0.9em;">Arya, an eccentric young man, falls in love with Geetha, but she doesn't reciprocate his feelings.</p>
-                    </div>
-                </div>
-                <div class="movie-card" onclick="selectMovie({id: 6, title: 'Top Gun: Maverick', genre: 'Action, Drama', duration: '130 min', rating: 8.3, description: 'Pete \'Maverick\' Mitchell confronts his past in this thrilling sequel.'})">
-                    <div class="movie-poster">Top Gun: Maverick</div>
-                    <div class="movie-info">
-                        <div class="movie-title">Top Gun: Maverick</div>
-                        <div class="movie-details">Action, Drama • 130 min</div>
-                        <div class="movie-rating">★ 8.3/10</div>
-                        <p style="margin-top: 10px; color: #666; font-size: 0.9em;">Pete 'Maverick' Mitchell confronts his past in this thrilling sequel.</p>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -630,7 +585,7 @@
         let selectedSeats = [];
         let currentStep = 'movies';
 
-        // Sample movie data
+        // Sample movie data with poster URLs
         const movies = [
             {
                 id: 1,
@@ -638,7 +593,8 @@
                 genre: "Sci-Fi, Adventure",
                 duration: "166 min",
                 rating: 8.8,
-                description: "Paul Atreides unites with Chani and the Fremen while seeking revenge."
+                description: "Paul Atreides unites with Chani and the Fremen while seeking revenge.",
+                poster: "https://image.tmdb.org/t/p/w500/8b8R8l88Qje9dn9OE8PY05Nxl1X.jpg"
             },
             {
                 id: 2,
@@ -646,23 +602,8 @@
                 genre: "Biography, Drama", 
                 duration: "180 min",
                 rating: 8.6,
-                description: "The story of J. Robert Oppenheimer and the atomic bomb."
-            },
-            {
-                id: 3,
-                title: "Spider-Verse",
-                genre: "Animation, Action",
-                duration: "140 min",
-                rating: 8.9,
-                description: "Miles Morales embarks on an epic multiverse adventure."
-            },
-            {
-                id: 4,
-                title: "The Batman",
-                genre: "Action, Crime",
-                duration: "176 min",
-                rating: 7.8,
-                description: "Batman ventures into Gotham City's underworld."
+                description: "The story of J. Robert Oppenheimer and the atomic bomb.",
+                poster: "https://image.tmdb.org/t/p/w500/ptpr0kGAckfQkJeJIt8st5dglvd.jpg"
             },
             {
                 id: 5,
@@ -670,7 +611,8 @@
                 genre: "Sci-Fi, Adventure",
                 duration: "192 min",
                 rating: 7.6,
-                description: "Jake Sully and his family face new threats on Pandora."
+                description: "Jake Sully and his family face new threats on Pandora.",
+                poster: "https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg"
             },
             {
                 id: 13,
@@ -678,7 +620,8 @@
                 genre: "Action, Drama",
                 duration: "167 min",
                 rating: 8.2,
-                description: "When Shiva learns about his heritage, he begins to look for answers to questions about his past."
+                description: "When Shiva learns about his heritage, he begins to look for answers to questions about his past.",
+                poster: "https://image.tmdb.org/t/p/w500/vVcXVVy1SCEvYR4yaeNqWBBL8yW.jpg"
             },
             {
                 id: 14,
@@ -686,7 +629,8 @@
                 genre: "Action, Comedy, Romance",
                 duration: "155 min",
                 rating: 7.8,
-                description: "Arya, an eccentric young man, falls in love with Geetha, but she doesn't reciprocate his feelings."
+                description: "Arya, an eccentric young man, falls in love with Geetha, but she doesn't reciprocate his feelings.",
+                poster: "https://image.tmdb.org/t/p/w500/y5iBPIrj3T9KkTY7OfPSxQ8yA7m.jpg"
             },
             {
                 id: 6,
@@ -694,55 +638,8 @@
                 genre: "Action, Drama",
                 duration: "130 min",
                 rating: 8.3,
-                description: "Pete 'Maverick' Mitchell confronts his past in this thrilling sequel."
-            },
-            {
-                id: 7,
-                title: "Black Panther: Wakanda Forever",
-                genre: "Action, Adventure",
-                duration: "161 min",
-                rating: 6.7,
-                description: "The people of Wakanda fight to protect their home from intervening world powers."
-            },
-            {
-                id: 8,
-                title: "John Wick: Chapter 4",
-                genre: "Action, Thriller",
-                duration: "169 min",
-                rating: 7.7,
-                description: "John Wick uncovers a path to defeating The High Table."
-            },
-            {
-                id: 9,
-                title: "Everything Everywhere All at Once",
-                genre: "Action, Adventure, Comedy",
-                duration: "139 min",
-                rating: 7.8,
-                description: "A Chinese-American woman gets swept up in an insane adventure."
-            },
-            {
-                id: 10,
-                title: "The Menu",
-                genre: "Comedy, Horror, Thriller",
-                duration: "107 min",
-                rating: 7.2,
-                description: "A couple travels to a coastal island to eat at an exclusive restaurant."
-            },
-            {
-                id: 11,
-                title: "Babylon",
-                genre: "Comedy, Drama",
-                duration: "189 min",
-                rating: 7.1,
-                description: "A tale of outsized ambition and outrageous excess in 1920s Hollywood."
-            },
-            {
-                id: 12,
-                title: "Glass Onion: A Knives Out Mystery",
-                genre: "Comedy, Crime, Drama",
-                duration: "139 min",
-                rating: 7.2,
-                description: "Detective Benoit Blanc travels to Greece to peel back the layers of a mystery."
+                description: "Pete 'Maverick' Mitchell confronts his past in this thrilling sequel.",
+                poster: "https://image.tmdb.org/t/p/w500/62HCnUTziyWcpDaBO2i1DX17ljH.jpg"
             }
         ];
 
@@ -783,7 +680,9 @@
                 movieCard.onclick = () => selectMovie(movie);
                 
                 movieCard.innerHTML = `
-                    <div class="movie-poster">${movie.title}</div>
+                    <div class="movie-poster">
+                        <img src="${movie.poster}" alt="${movie.title}">
+                    </div>
                     <div class="movie-info">
                         <div class="movie-title">${movie.title}</div>
                         <div class="movie-details">${movie.genre} • ${movie.duration}</div>
@@ -1057,3 +956,6 @@
             // DOM is already loaded
             init();
         }
+    </script>
+</body>
+</html>
