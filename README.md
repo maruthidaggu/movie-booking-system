@@ -1,4 +1,4 @@
-# 🎬 CineMax - Movie Ticket Booking System
+# 🎬 CineMax - Movie Ticket Booking System 
 
 A responsive movie ticket booking system built with HTML, CSS, and JavaScript.
 
